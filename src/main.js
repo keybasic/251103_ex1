@@ -6,6 +6,20 @@ const app = document.querySelector('#app')
 app.innerHTML = `
   <div>
     <h1>🍽️ 저녁 메뉴 추천 챗봇</h1>
+
+    <details id="devPanel" class="dev-panel">
+      <summary>🛠️ 개발자 모드: 프롬프트 편집/테스트</summary>
+      <div class="dev-body">
+        <label for="promptEditor" class="dev-label">System Prompt</label>
+        <textarea id="promptEditor" class="prompt-editor" rows="8" spellcheck="false"></textarea>
+        <div class="dev-actions">
+          <button id="applyPromptBtn">프롬프트 적용 ✅</button>
+          <button id="resetPromptBtn">프롬프트 초기화 ♻️</button>
+        </div>
+        <small id="promptStatus" class="prompt-status"></small>
+      </div>
+    </details>
+
     <div class="chat-container">
       <div id="messages" class="messages"></div>
       <div class="input-row">
@@ -38,13 +52,15 @@ function guardApiKey() {
   return true
 }
 
+const defaultSystemPrompt = `너는 사용자의 취향, 예산, 위치(대략적) 정보를 바탕으로 저녁 메뉴를 3가지로 추천하는 도우미야.\n- 각 추천은 간단한 이유와 예상 가격대, 대체 옵션 1개를 포함해.\n- 너무 장문으로 쓰지 말고 목록으로 간결하게 답해.\n- 항목 앞에 가벼운 이모지(🍜, 🥗, 🍣 등)를 붙여 친근하게.`
+let currentSystemPrompt = localStorage.getItem('dev.systemPrompt') || defaultSystemPrompt
+
 async function suggestDinner(userText) {
-  const systemPrompt = `너는 사용자의 취향, 예산, 위치(대략적) 정보를 바탕으로 저녁 메뉴를 3가지로 추천하는 도우미야.\n- 각 추천은 간단한 이유와 예상 가격대, 대체 옵션 1개를 포함해.\n- 너무 장문으로 쓰지 말고 목록으로 간결하게 답해.\n- 항목 앞에 가벼운 이모지(🍜, 🥗, 🍣 등)를 붙여 친근하게.`
 
   const body = {
     model: 'gpt-4o-mini',
     messages: [
-      { role: 'system', content: systemPrompt },
+      { role: 'system', content: currentSystemPrompt },
       { role: 'user', content: `내 조건: ${userText}` }
     ],
     temperature: 0.7
@@ -99,3 +115,40 @@ inputEl.addEventListener('keydown', (e) => {
 
 // 초기 인사
 appendMessage('안녕하세요! 저녁 메뉴 추천을 도와드릴게요 😊\n취향/예산/위치를 알려주시면 맞춤 추천 드릴게요.', 'bot')
+
+// 개발자 모드: 프롬프트 편집/적용/초기화
+const promptEditor = document.getElementById('promptEditor')
+const applyPromptBtn = document.getElementById('applyPromptBtn')
+const resetPromptBtn = document.getElementById('resetPromptBtn')
+const promptStatus = document.getElementById('promptStatus')
+
+if (promptEditor) {
+  promptEditor.value = currentSystemPrompt
+}
+
+function showPromptStatus(text) {
+  if (!promptStatus) return
+  promptStatus.textContent = text
+  promptStatus.style.opacity = '1'
+  setTimeout(() => {
+    promptStatus.style.opacity = '0.6'
+  }, 1200)
+}
+
+applyPromptBtn?.addEventListener('click', () => {
+  const text = promptEditor.value.trim()
+  if (!text) {
+    showPromptStatus('프롬프트가 비어있습니다.')
+    return
+  }
+  currentSystemPrompt = text
+  localStorage.setItem('dev.systemPrompt', currentSystemPrompt)
+  showPromptStatus('적용 완료! 다음 요청부터 사용됩니다.')
+})
+
+resetPromptBtn?.addEventListener('click', () => {
+  currentSystemPrompt = defaultSystemPrompt
+  localStorage.removeItem('dev.systemPrompt')
+  if (promptEditor) promptEditor.value = defaultSystemPrompt
+  showPromptStatus('기본 프롬프트로 초기화했습니다.')
+})

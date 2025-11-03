@@ -161,3 +161,53 @@ button:focus-visible {
 .input-row input[type="text"]::placeholder {
   color: #9aa4b2;
 }
+
+/* Dev prompt panel */
+.dev-panel {
+  max-width: 820px;
+  margin: 0 auto 16px auto;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid rgba(31, 41, 55, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.06);
+}
+
+.dev-panel > summary {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.dev-body {
+  padding: 0 16px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dev-label {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.prompt-editor {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(31, 41, 55, 0.15);
+  background: #ffffff;
+  color: #1f2937;
+  padding: 10px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.dev-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.prompt-status {
+  color: #4b5563;
+  opacity: 0.6;
+}
